@@ -69,8 +69,17 @@ app.get("/api/health", (_req, res) => {
 
 // ── POST /api/contact ────────────────────────────────────
 
+let isInitialized = false;
+
 app.post("/api/contact", contactLimiter, async (req, res) => {
   try {
+    // Lazy initialize services for Vercel Serverless environment
+    if (!isInitialized) {
+      console.log("Initializing services for Serverless environment...");
+      await Promise.allSettled([verifyConnection(), initSheets()]);
+      isInitialized = true;
+    }
+
     const { name, email, phone, message } = req.body;
 
     // ── Validation ────────────────────────────────
