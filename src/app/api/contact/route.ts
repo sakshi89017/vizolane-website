@@ -8,6 +8,7 @@ import { NextResponse } from "next/server";
 import { contactFormSchema } from "@/lib/security";
 import { createContact } from "@/lib/contacts-db";
 import { checkRateLimit, getClientIp } from "@/lib/rate-limit";
+import { sendAdminNotification, sendUserConfirmation } from "@/lib/email";
 
 export async function POST(request: Request) {
   try {
@@ -44,6 +45,23 @@ export async function POST(request: Request) {
 
     /* ── Create contact in GitHub DB ────────────── */
     const contact = await createContact(parsed.data);
+
+    /* ── Trigger email notifications in background ── */
+    Promise.allSettled([
+      sendAdminNotification({
+        name: contact.fullName,
+        email: contact.email,
+        phone: contact.phone,
+        message: contact.message,
+      }),
+      sendUserConfirmation({
+        name: contact.fullName,
+        email: contact.email,
+        message: contact.message,
+      }),
+    ]).catch((err) => {
+      console.error("Failed to run email background promises:", err);
+    });
 
     return NextResponse.json(
       {
