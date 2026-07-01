@@ -18,13 +18,21 @@ export function sanitizeInput(str: string): string {
 
 /**
  * Zod schema for contact form input validation.
+ * Accepts both legacy field names (name) and new field names (fullName).
  */
 export const contactFormSchema = z.object({
   fullName: z
     .string()
     .min(2, "Name is required (at least 2 characters)")
     .max(100, "Name must be under 100 characters")
-    .transform(sanitizeInput),
+    .transform(sanitizeInput)
+    .optional(),
+  name: z
+    .string()
+    .min(2, "Name is required (at least 2 characters)")
+    .max(100, "Name must be under 100 characters")
+    .transform(sanitizeInput)
+    .optional(),
   email: z
     .string()
     .email("A valid email address is required")
@@ -38,17 +46,21 @@ export const contactFormSchema = z.object({
     .transform(sanitizeInput),
   subject: z
     .string()
-    .min(2, "Subject is required (at least 2 characters)")
     .max(200, "Subject must be under 200 characters")
+    .optional()
+    .default("Website Inquiry")
     .transform(sanitizeInput),
   message: z
     .string()
     .min(5, "Message is required (at least 5 characters)")
     .max(5000, "Message must be under 5000 characters")
     .transform(sanitizeInput),
-});
+}).transform((data) => ({
+  ...data,
+  fullName: data.fullName || data.name || "Unknown",
+}));
 
-export type ValidatedContactData = z.infer<typeof contactFormSchema>;
+export type ValidatedContactData = z.output<typeof contactFormSchema>;
 
 /**
  * Validate admin API key from request headers.
