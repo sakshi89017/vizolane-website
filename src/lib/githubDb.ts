@@ -184,7 +184,9 @@ export async function listFiles(
   }
 
   const items: GitHubFileResponse[] = await res.json();
-  return Array.isArray(items) ? items.filter((i) => i.type === "file") : [];
+  return Array.isArray(items)
+    ? items.filter((i) => i.type === "file" && i.name.endsWith(".json"))
+    : [];
 }
 
 /**

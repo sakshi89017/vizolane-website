@@ -39,9 +39,10 @@ export async function GET(request: Request) {
       { headers: corsHeaders(request) }
     );
   } catch (err) {
-    console.error("Error in GET /api/admin/submissions:", err);
+    const errorMessage = err instanceof Error ? err.message : String(err);
+    console.error("Error in GET /api/admin/submissions:", errorMessage);
     return NextResponse.json(
-      { success: false, error: "Failed to fetch submissions" },
+      { success: false, error: "Failed to fetch submissions", detail: errorMessage },
       { 
         status: 500,
         headers: corsHeaders(request)
