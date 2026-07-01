@@ -33,9 +33,20 @@ export default function ContactsPage() {
         headers: { "x-admin-key": key },
       });
       const json = await res.json();
-      if (json.success) setData(json.data);
+      if (json.success) {
+        setData(json.data);
+      } else if (res.status === 401) {
+        localStorage.removeItem("vizolane_admin_key");
+        setToast({ type: "error", message: "Invalid admin key. Please sign in again." });
+        window.location.href = "/admin";
+      } else if (res.status === 403) {
+        setToast({ type: "error", message: "Access denied. CORS error — check your domain config." });
+      } else {
+        setToast({ type: "error", message: json.error || "Failed to load contacts." });
+      }
     } catch (err) {
       console.error("Failed to fetch contacts:", err);
+      setToast({ type: "error", message: "Network error. Check your connection." });
     } finally {
       setLoading(false);
     }
