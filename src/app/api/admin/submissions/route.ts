@@ -6,15 +6,11 @@
 import { NextResponse } from "next/server";
 import { validateAdminKey } from "@/lib/security";
 import { listContacts } from "@/lib/contacts-db";
-import { corsHeaders } from "@/lib/cors";
+import { corsHeaders, isAllowedOrigin } from "@/lib/cors";
 
 export async function GET(request: Request) {
   /* ── CORS check ───────────────────────────────── */
-  const host = request.headers.get("origin") || request.headers.get("host") || "";
-  const allowed = ["vizolane.com", "dashboard.vizolane.com", "localhost:3000", "127.0.0.1:3000"];
-  const isAllowed = allowed.some((domain) => host.includes(domain));
-  
-  if (!isAllowed) {
+  if (!isAllowedOrigin(request)) {
     return new NextResponse("CORS Not Allowed", { status: 403 });
   }
 
