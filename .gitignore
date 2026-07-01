@@ -1,4 +1,25 @@
+# Dependencies
 node_modules/
+
+# Next.js
+.next/
+out/
+
+# Environment
 .env
+.env.local
+.env.production
+
+# Legacy
 credentials.json
+index_legacy.html
+index_live_legacy.html
+server/
+
+# OS
 .DS_Store
+Thumbs.db
+
+# IDE
+.vscode/
+*.swp
